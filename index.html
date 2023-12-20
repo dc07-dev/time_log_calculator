@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jira Log Calculator</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    /* Add your custom styles here */
+  </style>
+</head>
+<body>
+
+  <div class="container mt-4">
+    <form id="jiraLogCalculatorForm">
+      <div class="form-row">
+        <div class="col-md-2">
+          <label for="approvedTime">Approved Time</label>
+          <input type="number" class="form-control" id="approvedTime" required>
+        </div>
+        <div class="col-md-2">
+          <label for="multiplyBy">Multiply By</label>
+          <input type="number" class="form-control" id="multiplyBy" value="1.33" required>
+        </div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" onclick="calculateJiraLog()">Calculate</button>
+        </div>
+      </div>
+    </form>
+
+    <br>
+
+    <div class="jira_log_calculator_result">
+      <h2 id="jiraLogCalculatorResult">Result: <span id="resultText">Nothing to Calculate</span></h2>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and Popper.js (required for Bootstrap) -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script>
+    function calculateJiraLog() {
+      var approvedTime = parseFloat(document.getElementById('approvedTime').value);
+      var multiplyBy = parseFloat(document.getElementById('multiplyBy').value);
+
+
+      if (isNaN(approvedTime) || isNaN(multiplyBy)) {
+        document.getElementById('resultText').innerText = 'Invalid input. Please enter valid numbers.';
+        return;
+      }
+
+      var result = calculateJiraLogTime(approvedTime, multiplyBy);
+      document.getElementById('resultText').innerText = 'Result: ' + (result || 'Nothing to Calculate');
+    }
+
+    function calculateJiraLogTime(approvedTime, multiplyBy) {
+      if (approvedTime === 0) {
+        return '';
+      }
+
+      var approvedTimeResult = approvedTime * multiplyBy;
+      var hours = Math.floor(approvedTimeResult);
+      var minutes = approvedTimeResult % 1.0;
+
+      return convertToHoursAndMinutes(hours, minutes);
+    }
+
+    function convertToHoursAndMinutes(hours, minutes) {
+      minutes = findClosestValue(minutes);
+
+      if (minutes === 60) {
+        hours += 1;
+        minutes = 0;
+      }
+
+      if (hours > 0 && minutes > 0) {
+        return hours + 'h ' + minutes + 'm';
+      } else if (hours > 0) {
+        return hours + 'h';
+      } else {
+        return minutes + 'm';
+      }
+    }
+
+    function findClosestValue(fractionalHours) {
+      var minutes = Math.round(fractionalHours * 60);
+      var allowedMinutes = [15, 30, 45, 60];
+      var nearestMinute = allowedMinutes.reduce(function (prev, curr) {
+        return (Math.abs(curr - minutes) < Math.abs(prev - minutes) ? curr : prev);
+      });
+
+      return nearestMinute;
+    }
+  </script>
+
+</body>
+</html>
